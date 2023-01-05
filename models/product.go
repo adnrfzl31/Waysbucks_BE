@@ -4,7 +4,7 @@ import "time"
 
 type Product struct {
 	ID          int    `json:"id" `
-	NameProduct string `json:"nameProduct" form:"nameProduct" gorm:"type: varchar(255)"`
+	Nameproduct string `json:"nameproduct" form:"nameproduct" gorm:"type: varchar(255)"`
 	Price       int    `json:"price" form:"price" gorm:"type: int"`
 	Image       string `json:"image" form:"image" gorm:"type: varchar(255)"`
 	//Qty			 int					 `json:"qty" form:"qty" gorm:"type: varchar(255)"`
@@ -14,7 +14,7 @@ type Product struct {
 
 type ProductResponse struct {
 	ID          int    `json:"id"`
-	NameProduct string `json:"nameProduct"`
+	Nameproduct string `json:"nameproduct"`
 	Price       int    `json:"price"`
 	Image       string `json:"image"`
 	//Qty			 int					 			`json:"-"`
@@ -22,7 +22,7 @@ type ProductResponse struct {
 
 type ProductUserResponse struct {
 	ID          int    `json:"id"`
-	NameProduct string `json:"nameProduct"`
+	Nameproduct string `json:"nameproduct"`
 	Price       int    `json:"price"`
 	Image       string `json:"image"`
 	//Qty    int    `json:"qty"`

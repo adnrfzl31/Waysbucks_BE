@@ -111,7 +111,7 @@ func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	request := toppingdto.CreateTopping{
-		NameTopping: r.FormValue("nameTopping"),
+		Nametopping: r.FormValue("nametopping"),
 		Price:       price,
 		Image:       filepath,
 	}
@@ -126,7 +126,7 @@ func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 	}
 
 	topping := models.Topping{
-		NameTopping: request.NameTopping,
+		Nametopping: request.Nametopping,
 		Price:       request.Price,
 		Image:       resp.SecureURL,
 		CreateAt:    time.Now(),
@@ -183,7 +183,7 @@ func (h *handlerTopping) UpdateTopping(w http.ResponseWriter, r *http.Request) {
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	request := toppingdto.UpdateTopping{
-		NameTopping: r.FormValue("nameTopping"),
+		Nametopping: r.FormValue("nametopping"),
 		Price:       price,
 		Image:       filepath,
 	}
@@ -205,8 +205,8 @@ func (h *handlerTopping) UpdateTopping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if request.NameTopping != "" {
-		topping.NameTopping = request.NameTopping
+	if request.Nametopping != "" {
+		topping.Nametopping = request.Nametopping
 	}
 
 	if request.Price != 0 {

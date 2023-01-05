@@ -109,7 +109,7 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	request := productdto.CreateProduct{
-		NameProduct: r.FormValue("nameProduct"),
+		Nameproduct: r.FormValue("nameproduct"),
 		Price:       price,
 		Image:       filepath,
 		//Qty:        qty,
@@ -125,7 +125,7 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	product := models.Product{
-		NameProduct: request.NameProduct,
+		Nameproduct: request.Nameproduct,
 		Price:       request.Price,
 		Image:       resp.SecureURL,
 		CreateAt:    time.Now(),
@@ -182,7 +182,7 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	request := productdto.UpdateProduct{
-		NameProduct: r.FormValue("nameProduct"),
+		Nameproduct: r.FormValue("nameproduct"),
 		Price:       price,
 	}
 
@@ -203,8 +203,8 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if request.NameProduct != "" {
-		product.NameProduct = request.NameProduct
+	if request.Nameproduct != "" {
+		product.Nameproduct = request.Nameproduct
 	}
 
 	if request.Price != 0 {
