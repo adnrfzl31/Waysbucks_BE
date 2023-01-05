@@ -65,13 +65,13 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 	}
 
-	emailUser, _ := h.AuthRepository.Login(request.Email)
-	if emailUser.Email == request.Email {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "E-mail already registered"}
-		json.NewEncoder(w).Encode(response)
-		return
-	}
+	// emailUser, _ := h.AuthRepository.Login(request.Email)
+	// if emailUser.Email == request.Email {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "E-mail already registered"}
+	// 	json.NewEncoder(w).Encode(response)
+	// 	return
+	// }
 
 	var ctx = context.Background()
 	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
@@ -105,12 +105,12 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 	}
 
-	fullname := authdto.RegisterResponse{
+	RegisterResponse := authdto.RegisterResponse{
 		Fullname: request.Fullname,
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: "success", Data: fullname}
+	response := dto.SuccessResult{Code: "success", Data: RegisterResponse}
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -131,7 +131,6 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check email
-	// err := mysql.DB.First(&user, "email = ?", user.Email).Error
 	user, err := h.AuthRepository.Login(user.Email)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -145,7 +144,6 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 	if !isValid {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "wrong email or password"}
-		// response := Result{Code: http.StatusBadRequest, Message: "wrong email or password"}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -183,6 +181,7 @@ func (h *handlerAuth) CheckAuth(w http.ResponseWriter, r *http.Request) {
 	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
 	userID := int(userInfo["id"].(float64))
 
+	// Check User by Id
 	user, err := h.AuthRepository.GetUser(userID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
