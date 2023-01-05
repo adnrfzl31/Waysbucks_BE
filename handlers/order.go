@@ -49,7 +49,12 @@ func (h *handlerOrder) AddOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	transaction, err := h.OrderRepository.GetTransactionID(request.BuyerID)
-
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "Product Not Found!"}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
 	// userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
 	// buyerID := int(userInfo["id"].(float64))
 
