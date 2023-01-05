@@ -77,16 +77,16 @@ func (h *handlerTopping) GetTopping(w http.ResponseWriter, r *http.Request) {
 func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// ambil data user id dari token yang sudah di decode
-	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
-	userRole := userInfo["role"]
+	// // ambil data user id dari token yang sudah di decode
+	// userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	// userRole := userInfo["role"]
 
-	if userRole != "admin" {
-		w.WriteHeader(http.StatusUnauthorized)
-		response := dto.ErrorResult{Code: http.StatusUnauthorized, Message: "You're not admin"}
-		json.NewEncoder(w).Encode(response)
-		return
-	}
+	// if userRole != "admin" {
+	// 	w.WriteHeader(http.StatusUnauthorized)
+	// 	response := dto.ErrorResult{Code: http.StatusUnauthorized, Message: "You're not admin"}
+	// 	json.NewEncoder(w).Encode(response)
+	// 	return
+	// }
 
 	// Get dataFile from midleware and store to filepath variable here ...
 	dataContex := r.Context().Value("dataFile")
