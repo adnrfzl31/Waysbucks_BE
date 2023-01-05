@@ -43,10 +43,10 @@ func (h *handlerTopping) FindTopping(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create Embed Path File on Image property here ...
-	for i, p := range Toppings {
-		imagePath := os.Getenv("PATH_FILE") + p.Image
-		Toppings[i].Image = imagePath
-	}
+	// for i, p := range Toppings {
+	// 	imagePath := os.Getenv("PATH_FILE") + p.Image
+	// 	Toppings[i].Image = imagePath
+	// }
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "success", Data: Toppings}
@@ -58,14 +58,7 @@ func (h *handlerTopping) GetTopping(w http.ResponseWriter, r *http.Request) {
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
-	_, err := h.ToppingRepository.GetTopping(id)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
-	}
-
+	var toppings models.Topping
 	toppings, err := h.ToppingRepository.GetTopping(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -74,7 +67,8 @@ func (h *handlerTopping) GetTopping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	toppings.Image = os.Getenv("PATH_FILE") + toppings.Image
+	// toppings.Image = os.Getenv("PATH_FILE") + toppings.Image
+
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "success", Data: toppings}
 	json.NewEncoder(w).Encode(response)
@@ -83,6 +77,7 @@ func (h *handlerTopping) GetTopping(w http.ResponseWriter, r *http.Request) {
 func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// ambil data user id dari token yang sudah di decode
 	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
 	userRole := userInfo["role"]
 
@@ -92,14 +87,12 @@ func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-	// get data user token
-	// userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
-	// userId := int(userInfo["id"].(float64))
 
 	// Get dataFile from midleware and store to filepath variable here ...
-	dataContex := r.Context().Value("dataFile") // add this code
-	filepath := dataContex.(string)             // add this code
+	dataContex := r.Context().Value("dataFile")
+	filepath := dataContex.(string)
 
+	// Declare Context Background, Cloud Name, API Key, API Secret ...
 	var ctx = context.Background()
 	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
 	var API_KEY = os.Getenv("API_KEY")
@@ -109,18 +102,18 @@ func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
 
 	// Upload file to Cloudinary ...
-	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "Waysbuck"})
+	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "waysbukcks"})
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Printf("%T\n", r.FormValue("price"))
+	// fmt.Printf("%T\n", r.FormValue("price"))
+
 	price, _ := strconv.Atoi(r.FormValue("price"))
-	//qty, _ := strconv.Atoi(r.FormValue("qty"))
 	request := toppingdto.CreateTopping{
-		Title: r.FormValue("title"),
-		Price: price,
-		//Qty:        qty,
+		NameTopping: r.FormValue("nameTopping"),
+		Price:       price,
+		Image:       filepath,
 	}
 
 	validation := validator.New()
@@ -133,12 +126,11 @@ func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 	}
 
 	topping := models.Topping{
-		Title: request.Title,
-		Price: request.Price,
-		Image: resp.SecureURL,
-		//Qty:    request.Qty,
-		CreateAt: time.Now(),
-		UpdateAt: time.Now(),
+		NameTopping: request.NameTopping,
+		Price:       request.Price,
+		Image:       resp.SecureURL,
+		CreateAt:    time.Now(),
+		UpdateAt:    time.Now(),
 	}
 
 	topping, err = h.ToppingRepository.CreateTopping(topping)
@@ -150,8 +142,6 @@ func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 	}
 
 	topping, _ = h.ToppingRepository.GetTopping(topping.ID)
-
-	topping.Image = os.Getenv("PATH_FILE") + topping.Image
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "success", Data: topping}
@@ -173,8 +163,8 @@ func (h *handlerTopping) UpdateTopping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dataContex := r.Context().Value("dataFile") // add this code
-	filepath := dataContex.(string)             // add this code
+	dataContex := r.Context().Value("dataFile")
+	filepath := dataContex.(string)
 
 	var ctx = context.Background()
 	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
@@ -185,17 +175,17 @@ func (h *handlerTopping) UpdateTopping(w http.ResponseWriter, r *http.Request) {
 	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
 
 	// Upload file to Cloudinary ...
-	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "dumbmerch"})
+	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "waysbukcks"})
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+
 	price, _ := strconv.Atoi(r.FormValue("price"))
-	//qty, _ := strconv.Atoi(r.FormValue("qty"))
 	request := toppingdto.UpdateTopping{
-		Title: r.FormValue("title"),
-		Price: price,
-		//Qty:        qty,
+		NameTopping: r.FormValue("nameTopping"),
+		Price:       price,
+		Image:       filepath,
 	}
 
 	validation := validator.New()
@@ -206,38 +196,35 @@ func (h *handlerTopping) UpdateTopping(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
+
 	topping, _ := h.ToppingRepository.GetTopping(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
 
-	// product.Title = request.Title
-	// product.Price = request.Price
-	// product.Qty = request.Qty
-
-	if request.Title != "" {
-		topping.Title = request.Title
+	if request.NameTopping != "" {
+		topping.NameTopping = request.NameTopping
 	}
 
 	if request.Price != 0 {
 		topping.Price = request.Price
 	}
 
-	//if request.Qty != 0 {
-	//	topping.Qty = request.Qty
-	//}
-
-	if filepath != "false" {
+	if request.Image != "" {
 		topping.Image = resp.SecureURL
 	}
 	topping.UpdateAt = time.Now()
 
 	topping, err = h.ToppingRepository.UpdateTopping(topping)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	topping.Image = os.Getenv("PATH_FILE") + topping.Image
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "success", Data: topping}
@@ -266,7 +253,7 @@ func (h *handlerTopping) DeleteTopping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.ToppingRepository.DeleteTopping(topping)
+	deleteTopping, err := h.ToppingRepository.DeleteTopping(topping)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
@@ -274,19 +261,13 @@ func (h *handlerTopping) DeleteTopping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := topping.ID
-
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: "success", Data: data}
+	response := dto.SuccessResult{Code: "success", Data: convertResponseTopping(deleteTopping)}
 	json.NewEncoder(w).Encode(response)
 }
 
-// func convertResponseTopping(u models.Topping) toppingdto.ToppingResponse {
-// 	return toppingdto.ToppingResponse{
-// 		ID: 			u.ID,
-// 		Title: u.Title,
-// 		Price: u.Price,
-// 		Image: u.Image,
-// 		Qty: u.Qty,
-// 	}
-// }
+func convertResponseTopping(u models.Topping) toppingdto.ToppingResponse {
+	return toppingdto.ToppingResponse{
+		ID: u.ID,
+	}
+}
