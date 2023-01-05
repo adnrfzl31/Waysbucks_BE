@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 	authdto "waysbucks/dto/auth"
 	dto "waysbucks/dto/result"
@@ -13,6 +15,8 @@ import (
 	jwtToken "waysbucks/pkg/jwt"
 	"waysbucks/repositories"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -28,21 +32,22 @@ func HandlerAuth(AuthRepository repositories.AuthRepository) *handlerAuth {
 func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// dataContex := r.Context().Value("dataFile") // add this code
-	// filepath := dataContex.(string)
-	// request := authdto.RegisterRequest{
-	// 	Fullname:  r.FormValue("fullname"),
-	// 	Email: r.FormValue("email"),
-	// 	Password: r.FormValue("password"),
-	// }
-
-	request := new(authdto.RegisterRequest)
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
+	dataContex := r.Context().Value("dataFile") // add this code
+	filepath := dataContex.(string)
+	request := authdto.RegisterRequest{
+		Fullname: r.FormValue("fullname"),
+		Email:    r.FormValue("email"),
+		Password: r.FormValue("password"),
+		Image:    filepath,
 	}
+
+	// request := new(authdto.RegisterRequest)
+	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+	// 	json.NewEncoder(w).Encode(response)
+	// 	return
+	// }
 
 	validation := validator.New()
 	err := validation.Struct(request)
@@ -61,7 +66,6 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	emailUser, _ := h.AuthRepository.Login(request.Email)
-
 	if emailUser.Email == request.Email {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "E-mail already registered"}
@@ -69,11 +73,27 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	// Add your Cloudinary credentials ...
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+	// Upload file to Cloudinary ...
+	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "waysbukcks"})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	user := models.User{
 		Fullname: request.Fullname,
 		Email:    request.Email,
 		Password: password,
 		Role:     "user",
+		Image:    resp.SecureURL,
 		CreateAt: time.Now(),
 		UpdateAt: time.Now(),
 	}
