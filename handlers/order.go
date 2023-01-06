@@ -51,7 +51,7 @@ func (h *handlerOrder) AddOrder(w http.ResponseWriter, r *http.Request) {
 	transaction, err := h.OrderRepository.GetTransactionID(request.BuyerID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "Product Not Found!"}
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "Trasaction Not Found!"}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -102,8 +102,8 @@ func (h *handlerOrder) AddOrder(w http.ResponseWriter, r *http.Request) {
 	order, err := h.OrderRepository.AddOrder(dataOrder)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: "Order Failed!"}
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "Order Failed!"}
 		json.NewEncoder(w).Encode(response)
 		return
 	}

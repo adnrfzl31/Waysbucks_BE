@@ -7,16 +7,16 @@ type Order struct {
 	Qty   int `json:"qty" gorm:"type: int"`
 	Total int `json:"total" gorm:"type: int"`
 
-	ProductID int             `json:"product_id" `
-	Product   Product					`json:"product" gorm:"constraint :OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ProductID int     `json:"product_id" `
+	Product   Product `json:"product" gorm:"constraint :OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
 	ToppingID []int     `json:"topping_id" gorm:"-"`
 	Topping   []Topping `json:"topping" gorm:"many2many:topping_order;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
-	TransactionID int         `json:"transaction_id"`
+	TransactionID int         `json:"transaction_id" `
 	Transaction   Transaction `json:"-"`
-	
-	CreateAt time.Time	`json:"-"`
+
+	CreateAt time.Time `json:"-"`
 }
 
 type OrderResponse struct {
