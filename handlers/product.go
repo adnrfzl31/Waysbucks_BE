@@ -24,9 +24,6 @@ type handlerProduct struct {
 	ProductRepository repositories.ProductRepository
 }
 
-// Create `path_file` Global variable here ...
-// var path_file = os.Getenv("PATH_FILE")
-
 func HandlerProduct(ProductRepository repositories.ProductRepository) *handlerProduct {
 	return &handlerProduct{ProductRepository}
 }
@@ -37,15 +34,9 @@ func (h *handlerProduct) FindProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := h.ProductRepository.FindProducts()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
-	}
-
-	// Create Embed Path File on Image property here ...
-	for i, p := range products {
-		imagePath := os.Getenv("PATH_FILE") + p.Image
-		products[i].Image = imagePath
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -61,14 +52,11 @@ func (h *handlerProduct) GetProduct(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
 	product, err := h.ProductRepository.GetProduct(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	// // Create Embed Path File on Image property
-	// product.Image = os.Getenv("PATH_FILE") + product.Image
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "success", Data: product}
@@ -112,7 +100,6 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		Nameproduct: r.FormValue("nameproduct"),
 		Price:       price,
 		Image:       filepath,
-		//Qty:        qty,
 	}
 
 	validation := validator.New()
@@ -162,8 +149,8 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dataContex := r.Context().Value("dataFile") // add this code
-	filepath := dataContex.(string)             // add this code
+	dataContex := r.Context().Value("dataFile")
+	filepath := dataContex.(string)            
 
 	var ctx = context.Background()
 	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
@@ -197,8 +184,8 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 	product, err := h.ProductRepository.GetProduct(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}

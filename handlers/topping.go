@@ -24,9 +24,6 @@ type handlerTopping struct {
 	ToppingRepository repositories.ToppingRepository
 }
 
-// Create `path_file` Global variable here ...
-// var path_file = os.Getenv("PATH_FILE")
-
 func HandlerTopping(ToppingRepository repositories.ToppingRepository) *handlerTopping {
 	return &handlerTopping{ToppingRepository}
 }
@@ -37,16 +34,10 @@ func (h *handlerTopping) FindTopping(w http.ResponseWriter, r *http.Request) {
 	Toppings, err := h.ToppingRepository.FindTopping()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	// Create Embed Path File on Image property here ...
-	// for i, p := range Toppings {
-	// 	imagePath := os.Getenv("PATH_FILE") + p.Image
-	// 	Toppings[i].Image = imagePath
-	// }
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "success", Data: Toppings}
@@ -67,8 +58,6 @@ func (h *handlerTopping) GetTopping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// toppings.Image = os.Getenv("PATH_FILE") + toppings.Image
-
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "success", Data: toppings}
 	json.NewEncoder(w).Encode(response)
@@ -77,16 +66,16 @@ func (h *handlerTopping) GetTopping(w http.ResponseWriter, r *http.Request) {
 func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// // ambil data user id dari token yang sudah di decode
-	// userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
-	// userRole := userInfo["role"]
+	// ambil data user id dari token yang sudah di decode
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userRole := userInfo["role"]
 
-	// if userRole != "admin" {
-	// 	w.WriteHeader(http.StatusUnauthorized)
-	// 	response := dto.ErrorResult{Code: http.StatusUnauthorized, Message: "You're not admin"}
-	// 	json.NewEncoder(w).Encode(response)
-	// 	return
-	// }
+	if userRole != "admin" {
+		w.WriteHeader(http.StatusUnauthorized)
+		response := dto.ErrorResult{Code: http.StatusUnauthorized, Message: "You're not admin"}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
 
 	// Get dataFile from midleware and store to filepath variable here ...
 	dataContex := r.Context().Value("dataFile")
@@ -107,7 +96,6 @@ func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	// fmt.Printf("%T\n", r.FormValue("price"))
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	request := toppingdto.CreateTopping{
@@ -135,8 +123,8 @@ func (h *handlerTopping) CreateTopping(w http.ResponseWriter, r *http.Request) {
 
 	topping, err = h.ToppingRepository.CreateTopping(topping)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -220,8 +208,8 @@ func (h *handlerTopping) UpdateTopping(w http.ResponseWriter, r *http.Request) {
 
 	topping, err = h.ToppingRepository.UpdateTopping(topping)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}

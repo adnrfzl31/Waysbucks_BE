@@ -55,8 +55,6 @@ func (h *handlerOrder) AddOrder(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-	// userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
-	// buyerID := int(userInfo["id"].(float64))
 
 	product, err := h.OrderRepository.GetProductOrder(request.ProductID)
 
@@ -91,19 +89,12 @@ func (h *handlerOrder) AddOrder(w http.ResponseWriter, r *http.Request) {
 		CreateAt:      time.Now(),
 	}
 
-	// dataOrder := models.Order{
-	// 	Qty:       	1,
-	// 	BuyerID:  	buyerID,
-	// 	ProductID: 	product.ID,
-	// 	Topping:    toppings,
-	// 	Total:     	Total,
-	// }
 
 	order, err := h.OrderRepository.AddOrder(dataOrder)
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "Order Failed!"}
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: "Order Failed!"}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -148,7 +139,7 @@ func (h *handlerOrder) FindOrders(w http.ResponseWriter, r *http.Request) {
 	orders, err := h.OrderRepository.FindOrders()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -169,7 +160,7 @@ func (h *handlerOrder) GetOrdersByID(w http.ResponseWriter, r *http.Request) {
 	orders, err := h.OrderRepository.GetOrdersByID(int(transaction.ID))
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
@@ -207,11 +198,6 @@ func (h *handlerOrder) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	// qty, _ := strconv.Atoi(r.FormValue("qty"))
-	// request := orderdto.UpdateOrder {
-	// 	Qty:       qty,
-	// }
 
 	order, _ := h.OrderRepository.GetOrder(id)
 

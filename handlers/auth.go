@@ -32,7 +32,7 @@ func HandlerAuth(AuthRepository repositories.AuthRepository) *handlerAuth {
 func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	dataContex := r.Context().Value("dataFile") // add this code
+	dataContex := r.Context().Value("dataFile")
 	filepath := dataContex.(string)
 	request := authdto.RegisterRequest{
 		Fullname: r.FormValue("fullname"),
@@ -40,15 +40,6 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 		Password: r.FormValue("password"),
 		Image:    filepath,
 	}
-
-	// request := new(authdto.RegisterRequest)
-	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-	// 	json.NewEncoder(w).Encode(response)
-	// 	return
-	// }
-
 	validation := validator.New()
 	err := validation.Struct(request)
 	if err != nil {
@@ -65,23 +56,13 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 	}
 
-	// emailUser, _ := h.AuthRepository.Login(request.Email)
-	// if emailUser.Email == request.Email {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "E-mail already registered"}
-	// 	json.NewEncoder(w).Encode(response)
-	// 	return
-	// }
-
 	var ctx = context.Background()
 	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
 	var API_KEY = os.Getenv("API_KEY")
 	var API_SECRET = os.Getenv("API_SECRET")
 
-	// Add your Cloudinary credentials ...
 	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
 
-	// Upload file to Cloudinary ...
 	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "waysbukcks"})
 
 	if err != nil {

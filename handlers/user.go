@@ -45,12 +45,8 @@ func (h *handlerUser) FindUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.UserRepository.FindUsers()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
-	}
-
-	for i, p := range users {
-		imagePath := os.Getenv("PATH_FILE") + p.Image
-		users[i].Image = imagePath
+		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -72,8 +68,6 @@ func (h *handlerUser) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.Image = os.Getenv("PATH_FILE") + user.Image
-
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "success", Data: user}
 	json.NewEncoder(w).Encode(response)
@@ -82,18 +76,10 @@ func (h *handlerUser) GetUser(w http.ResponseWriter, r *http.Request) {
 func (h *handlerUser) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// request := new(usersdto.UpdateUser)
-	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-	// 	json.NewEncoder(w).Encode(response)
-	// 	return
-	// }
-
 	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
 	userID := int(userInfo["id"].(float64))
 
-	dataContext := r.Context().Value("dataFile") // add this code
+	dataContext := r.Context().Value("dataFile") 
 	filepath := dataContext.(string)
 
 	var ctx = context.Background()

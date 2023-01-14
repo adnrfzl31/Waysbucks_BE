@@ -102,33 +102,6 @@ func (h *handlerTransaction) FindTransaction(w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(response)
 }
 
-// func (h *handlerTransaction) DeleteTransaction(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json")
-
-// 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-
-// 	transaction, err := h.TransactionRepository.GetTransaction(id)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusBadRequest)
-// 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-// 		json.NewEncoder(w).Encode(response)
-// 		return
-// 	}
-
-// 	data, err := h.TransactionRepository.DeleteTransaction(transaction)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusInternalServerError)
-// 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
-// 		json.NewEncoder(w).Encode(response)
-// 		return
-// 	}
-
-// 	dataDelete := data.ID
-// 	w.WriteHeader(http.StatusOK)
-// 	response := dto.SuccessResult{Code: "success", Data: dataDelete}
-// 	json.NewEncoder(w).Encode(response)
-// }
-
 func (h *handlerTransaction) GetOrderByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -230,8 +203,6 @@ func (h *handlerTransaction) GetTransaction(w http.ResponseWriter, r *http.Reque
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	// order, err := h.TransactionRepository.GetOrderByID(trans.UserID)
 
 	dataTransactions := models.Transaction{
 		ID:      trans.ID,

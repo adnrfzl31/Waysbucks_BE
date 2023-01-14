@@ -5,7 +5,6 @@ type CreateTopping struct {
 	Nametopping string `json:"nametopping" gorm:"type: varchar(255)" validate:"required"`
 	Price       int    `json:"price" gorm:"type: varchar(255)" validate:"required"`
 	Image       string `json:"image" gorm:"type: varchar(255)"`
-	//Qty   int    `json:"qty" form:"qty" gorm:"type: int" validate:"required"`
 }
 
 type UpdateTopping struct {
@@ -13,5 +12,4 @@ type UpdateTopping struct {
 	Nametopping string `json:"nametopping" gorm:"type: varchar(255)"`
 	Price       int    `json:"price" gorm:"type: int" `
 	Image       string `json:"image" gorm:"type: varchar(255)"`
-	//Qty   int    `json:"qty" form:"qty" gorm:"type: int"`
 }
